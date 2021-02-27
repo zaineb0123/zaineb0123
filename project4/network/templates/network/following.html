@@ -1,0 +1,58 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+{% for users_post in listOfAllPosts %}
+    {% for post in users_post %}
+<div class="secondSection">
+    <div class="container">
+        <div class="card">
+            <h4><a href = "profile/{{post.created_by}}" class="userNameClick">{{post.created_by}}</a></h4>
+            <p>{{post.postContent}}</p>
+            <small>{{post.dateAndTime}}</small>
+            
+
+            <strong id = "like_count-{{post.id}}">{{ post.likes }}</strong>
+            {% if user.is_authenticated %}
+            <i class="fa fa-thumbs-up" id="likes" data-postId="{{post.id}}" onclick="likeOnClick(this, '{{post.id}}');"></i>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+</div>
+
+ <!--Pagination Start-->
+    <!--Only show pagination when there are posts added-->
+    {% if listOfAllPosts %}
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {% if listOfAllPosts.has_previous %}
+            <a href="?page=1" class="page-link">&laquo; first</a>
+            <a href="?page={{ listOfAllPosts.previous_page_number }}" class="page-link">previous</a>
+            {% endif %}
+
+
+            {% for i in listOfAllPosts.paginator.page_range %}
+            {% if listOfAllPosts.number == i %}
+            <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+            </li>
+            {% else %}
+            <li class="page-item"><a href="?page={{ i }}" class="page-link">{{ i }}</a></li>
+            {% endif %}
+            {% endfor %}
+
+
+            {% if listOfAllPosts.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ listOfAllPosts.next_page_number }}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ listOfAllPosts.paginator.num_pages }}">Last &raquo;</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+    <!--Pagination End-->
+
+{% endblock %}

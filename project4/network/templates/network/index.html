@@ -1,0 +1,106 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+
+<!--Modal for Editing Tweets - Start-->
+<!--The Modal-->
+<div id="myModal" class="modal">
+
+    <!--Modal content-->
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>Edit Your Post</h4>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+                <textarea name="editPostBox" id="editPostBox"></textarea>
+                <hr>
+                <button class="saveButton" id="saveButton" type="submit" >Save</button> 
+            </div>
+    </div>
+</div>
+
+<!--Modal for Editing Tweets - End-->
+
+{% if user.is_authenticated %}
+
+<div class="firstSection">
+    <div class="container">
+        <div class="card">
+            <form method="POST">{% csrf_token %}
+                <textarea name="newPostBox" id="newPostBox" placeholder="What's happening?"></textarea>
+                <button class="btn btn-primary" type="submit" id="postButton" onclick='newPostFunc();'>Tweet</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+{% endif %}
+
+
+
+
+
+{% for d in page_obj %}
+<div class="secondSection">
+    <div class="container">
+        <div class="card" id = "cardID">
+            <h4><a href="profile/{{d.created_by}}" class="userNameClick">{{d.created_by}}</a></h4>
+            
+            {% if request.user == d.created_by %}
+            <a href="#" onclick="loadModal('{{d.id}}');" id="editLink">Edit</a>
+            {% endif %}
+
+            <p id="contents">{{d.postContent}}</p>
+            <small>{{d.dateAndTime}}</small>
+
+            <strong id = "like_count-{{d.id}}">{{ d.likes }}</strong>
+            {% if user.is_authenticated %}
+            {% if request.user != d.created_by %}
+            <i class="fa fa-thumbs-up" id="likes" data-postId="{{d.id}}" onclick="likeOnClick(this, '{{d.id}}');"></i>
+            {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+    {% endfor %}
+
+
+    <!--Pagination Start-->
+    <!--Only show pagination when there are posts added-->
+{% if page_obj %}
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <a href="?page=1" class="page-link">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="page-link">previous</a>
+            {% endif %}
+
+
+            {% for i in page_obj.paginator.page_range %}
+            {% if page_obj.number == i %}
+            <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+            </li>
+            {% else %}
+            <li class="page-item"><a href="?page={{ i }}" class="page-link">{{ i }}</a></li>
+            {% endif %}
+            {% endfor %}
+
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+    <!--Pagination End-->
+</div>
+
+{% endblock %}
